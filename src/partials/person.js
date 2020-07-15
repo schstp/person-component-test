@@ -93,27 +93,63 @@ export class Person {
 }
 
 /**
- * Class representing list of related Person class instances and encapsulating
- * business logic for processing the list.
+ * Class representing collection of related Person class instances
+ * and encapsulating business logic for processing the collection.
  */
-export class PersonsList {
+export class PersonsCollection {
+  /** @private @const Collection update error message */
+  updateErrMsg_ = 'Defective Person cannot be added to the PersonsCollection'
+
   /**
-   * Create a PersonsList.
+   * Create a PersonsCollection.
    * @param {Array.<Person>} persons - Array of Person class instances.
    */
   constructor(persons = []) {
     /** @private {Array.<Person>} */
     this.persons_ = persons
 
-    /** @private {Number} */
+    /** @private {Number} Iterator index */
     this.index_ = 0
+  }
+
+  /**
+   * Push person to the list.
+   * @param {Person|{id: Number, firstName: String, lastName: String}} person
+   * - The new one person to add.
+   */
+  push(person) {
+    if (person instanceof Person) {
+      this.persons_.push(person)
+    } else {
+      try {
+        this.persons_.push(Person.producePerson(person))
+      } catch (err) {
+        throw new Error(PersonsCollection.updateErrMsg_)
+      }
+    }
+  }
+
+  /**
+   * Remove person with specified id.
+   * @param {Number} id - The id of person to delete.
+   * @return {Boolean} The sign of operation success.
+   */
+  removePersonById(id) {
+    const index = this.persons_.findIndex((person) => {
+      return person.id === id
+    })
+    if (index > -1) {
+      this.persons_.slice(index, 1)
+      return true
+    }
+    return false
   }
 
   /**
    * Produce a persons list from raw server response data (factory method).
    * @param {{id: Number, firstName: String, lastName: String}[]} rawPersons
    * - Array of person data objects.
-   * @return {PersonsList}
+   * @return {PersonsCollection}
    */
   static producePersonsList(rawPersons) {
     const persons = []
@@ -121,9 +157,32 @@ export class PersonsList {
       try {
         persons.push(Person.producePerson(personData))
       } catch (err) {
-        throw new Error('Defective Person cannot be added to the PersonsList')
+        throw new Error(PersonsCollection.updateErrMsg_)
       }
     }
     return new this(persons)
+  }
+
+  /**
+   * Iterate over persons array.
+   * @return {Object}
+   */
+  [Symbol.iterator]() {
+    return {
+      next: () => {
+        if (this.index_ < this.persons_.length) {
+          return {
+            value: this.persons_[this.index_++],
+            done: false,
+          }
+        } else {
+          this.index_ = 0
+          return {
+            done: true,
+            value: undefined,
+          }
+        }
+      },
+    }
   }
 }
