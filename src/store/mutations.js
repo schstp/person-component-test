@@ -1,22 +1,22 @@
 import { PersonsCollection } from '../partials/person.js'
 
 export default {
-  setPersonsCollection(state, rowPersons) {
+  setPersonsCollection(state, { rawPersons }) {
     state.personsCollection = PersonsCollection
-        .producePersonsCollection(rowPersons)
+        .producePersonsCollection(rawPersons)
   },
 
-  updatePerson(state, rowPerson) {
+  updatePerson(state, { rowPerson }) {
     const person = state.personsCollection.getPersonById(rowPerson.id)
     person.setFirstName(rowPerson.firstName)
     person.setLastName(rowPerson.lastName)
   },
 
-  addPerson(state, rowPerson) {
+  addPerson(state, { rowPerson }) {
     state.personsCollection.push(rowPerson)
   },
 
-  deletePerson(state, personId) {
+  deletePerson(state, { personId }) {
     state.personsCollection.removePersonById(personId)
   },
 }

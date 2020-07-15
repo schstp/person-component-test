@@ -108,8 +108,8 @@ export class PersonsCollection {
     /** @private {Array.<Person>} */
     this.persons_ = persons
 
-    /** @private {Number} Iterator index */
-    this.index_ = 0
+    /** @private @readonly {Number} */
+    this.length_ = persons.length
   }
 
   /**
@@ -127,17 +127,27 @@ export class PersonsCollection {
         throw new Error(PersonsCollection.updateErrMsg_)
       }
     }
+    this.length_++
   }
 
   /**
    * Get person with specified id from the collection.
-   * @param {Number} id - The id of person to delete.
+   * @param {Number} id - The id of person to get.
    * @return {Person|undefined} Person class instance or undefined if not found.
    */
   getPersonById(id) {
     return this.persons_.find((person) => {
       return person.getId() === id
     })
+  }
+
+  /**
+   * Get person at specified position from the collection.
+   * @param {Number} index - The index of person to get.
+   * @return {Person|undefined} Person class instance or undefined if not found.
+   */
+  getPersonAt(index) {
+    return this.persons_[index]
   }
 
   /**
@@ -151,9 +161,18 @@ export class PersonsCollection {
     })
     if (index > -1) {
       this.persons_.slice(index, 1)
+      this.length_--
       return true
     }
     return false
+  }
+
+  /**
+   * Get persons collection length.
+   * @return {Number}
+   */
+  getLength() {
+    return this.length_
   }
 
   /**
@@ -177,24 +196,45 @@ export class PersonsCollection {
 
   /**
    * Iterate over persons array.
-   * @return {Object}
+   * @return {PersonsCollectionIterator} Iterator
    */
   [Symbol.iterator]() {
-    return {
-      next: () => {
-        if (this.index_ < this.persons_.length) {
-          return {
-            value: this.persons_[this.index_++],
-            done: false,
-          }
-        } else {
-          this.index_ = 0
-          return {
-            done: true,
-            value: undefined,
-          }
-        }
-      },
+    return new PersonsCollectionIterator(this)
+  }
+}
+
+/**
+ * Class representing Iterator over PersonsCollection instance.
+ */
+class PersonsCollectionIterator {
+  /**
+   * Create a PersonsCollectionIterator
+   * @param {PersonsCollection} personsCollection - PersonsCollection instance
+   */
+  constructor(personsCollection) {
+    /** @private {PersonsCollection} Iteration object*/
+    this.personsCollection_ = personsCollection
+
+    /** @private {Number} Next value index*/
+    this.index_ = 0
+  }
+
+  /**
+   * Get next elem from the persons collection.
+   * @return {{value: Person, done: boolean}|{done: boolean}}
+   */
+  next() {
+    if (this.index_ === this.personsCollection_.getLength()) {
+      return { done: true }
     }
+
+    const result = {
+      value: this.personsCollection_.getPersonAt(this.index_),
+      done: false,
+    }
+
+    this.index_++
+
+    return result
   }
 }
