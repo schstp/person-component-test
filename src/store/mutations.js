@@ -6,14 +6,14 @@ export default {
         .producePersonsCollection(rawPersons)
   },
 
-  updatePerson(state, { rowPerson }) {
-    const person = state.personsCollection.getPersonById(rowPerson.id)
-    person.setFirstName(rowPerson.firstName)
-    person.setLastName(rowPerson.lastName)
+  updatePerson(state, { rawPerson }) {
+    const person = state.personsCollection.getPersonById(rawPerson.id)
+    person.setFirstName(rawPerson.firstName)
+    person.setLastName(rawPerson.lastName)
   },
 
-  addPerson(state, { rowPerson }) {
-    state.personsCollection.push(rowPerson)
+  addPerson(state, { rawPerson }) {
+    state.personsCollection.push(rawPerson)
   },
 
   deletePerson(state, { personId }) {

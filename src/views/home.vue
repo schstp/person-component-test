@@ -18,7 +18,24 @@
         <div class="table__footer__column">
         </div>
         <div class="table__footer__column">
-          <button>Добавить сотрудника</button>
+          <button @click="showModal = true">Добавить сотрудника</button>
+          <person-edit-modal
+            v-if="showModal"
+            @close="showModal = false"
+            @submit="createNewPerson"
+          >
+            <span slot="header">Создание сотрудника</span>
+            <div slot="body" class="modal-body">
+              <input
+                v-model="modalData.firstName"
+                placeholder="Введите имя сотрудника"
+              >
+              <input
+                v-model="modalData.lastName"
+                placeholder="Введите фамилию сотрудника"
+              >
+            </div>
+          </person-edit-modal>
         </div>
       </div>
     </div>
@@ -28,21 +45,44 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import Person from '../components/Person.vue'
+import PersonEditModal from '../components/PersonEditModal.vue'
+
 export default {
   name: 'home',
   components: {
     Person,
+    PersonEditModal,
   },
   data() {
     return {
       loadingState: true,
+      showModal: false,
+      modalData: {
+        firstName: '',
+        lastName: '',
+      },
     }
   },
   computed: {
     ...mapState(['personsCollection']),
   },
   methods: {
-    ...mapActions(['getPersons']),
+    ...mapActions(['getPersons', 'addPerson']),
+    createNewPerson() {
+      this.showModal = false
+      this.addPerson({
+        personData: {
+          firstName: this.modalData.firstName,
+          lastName: this.modalData.lastName,
+        },
+        personId: null,
+      })
+      this.clearModal()
+    },
+    clearModal() {
+      this.modalData.firstName = ''
+      this.modalData.lastName = ''
+    },
   },
   beforeMount() {
     this.getPersons()
@@ -133,14 +173,18 @@ export default {
           display: block;
         }
         button {
-          height: 40px;
-          background-color: #3d8bcd;
-          color: #ffffff;
-          border: none;
-          border-radius: 5px;
+          width: 210px;
+        }
+      }
+      .modal-body {
+        input {
+          width: 100%;
+          height: 35px;
           outline: none;
-          font-size: inherit;
-          font-weight: bold;
+          border: 1px solid #999999;
+          border-radius: 3px;
+          margin-bottom: 10px;
+          font-size: 14px;
         }
       }
     }

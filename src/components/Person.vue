@@ -13,28 +13,94 @@
     </div>
     <div class="container__column">
       <div class="control-btn-wrapper">
-        <button class="edit">
+        <button @click="showEditModal = true" class="edit">
           <img src="../assets/img/edit.svg" alt="edit-icon">
         </button>
+        <person-edit-modal
+          v-if="showEditModal"
+          @close="showEditModal = false"
+          @submit="updatePersonInfo"
+        >
+          <span slot="header">Редактирование сотрудника</span>
+          <div slot="body" class="modal-body">
+            <input
+              v-model="editModalData.firstName"
+              placeholder="Введите имя сотрудника"
+            >
+            <input
+              v-model="editModalData.lastName"
+              placeholder="Введите фамилию сотрудника"
+            >
+          </div>
+        </person-edit-modal>
       </div>
       <div class="control-btn-wrapper">
-        <button class="delete">
+        <button @click="showDeleteModal = true" class="delete">
           <img src="../assets/img/remove.svg" alt="remove-icon">
         </button>
+        <person-edit-modal
+          v-if="showDeleteModal"
+          @close="showDeleteModal = false"
+        >
+          <span slot="header">Удаление сотрудника</span>
+          <div slot="body">
+            <span>Вы уверены, что хотите удалить сотрудника
+              "{{ person.getFirstName() + ' ' + person.getLastName()}}" ?
+            </span>
+          </div>
+          <div slot="footer" class="delete-modal-footer">
+            <button @click="showDeleteModal = false">Отмена</button>
+            <button @click="removePerson">Удалить</button>
+          </div>
+        </person-edit-modal>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import { Person } from '../partials/person.js'
+import PersonEditModal from './PersonEditModal.vue'
 
 export default {
   name: 'Person',
+  components: {
+    PersonEditModal,
+  },
   props: {
     person: {
       type: Person,
       required: true,
+    },
+  },
+  data() {
+    const firstName = this.person.getFirstName()
+    const lastName = this.person.getLastName()
+    return {
+      editModalData: {
+        firstName: firstName,
+        lastName: lastName,
+      },
+      showEditModal: false,
+      showDeleteModal: false,
+    }
+  },
+  methods: {
+    ...mapActions(['updatePerson', 'deletePerson']),
+    updatePersonInfo() {
+      this.showEditModal = false
+      this.updatePerson({
+        personData: {
+          firstName: this.editModalData.firstName,
+          lastName: this.editModalData.lastName,
+        },
+        personId: this.person.getId(),
+      })
+    },
+    removePerson() {
+      this.showDeleteModal = false
+      this.deletePerson(this.person.getId())
     },
   },
 }
@@ -99,6 +165,47 @@ export default {
         }
         img {
           width: 100%;
+        }
+      }
+
+      .modal-body {
+        input {
+          width: 100%;
+          height: 35px;
+          outline: none;
+          border: 1px solid #999999;
+          border-radius: 3px;
+          margin-bottom: 10px;
+          font-size: 14px;
+        }
+      }
+
+      .delete-modal-footer {
+        button {
+          height: 35px;
+          width: 100px;
+          margin-left: 5px;
+          color: #ffffff;
+          border: none;
+          border-radius: 5px;
+          outline: none;
+          font-size: inherit;
+          font-weight: bold;
+          &:hover {
+            cursor: pointer;
+          }
+          &:first-of-type {
+            background-color: #3d8bcd;
+            &:hover {
+              background-color: #3a80ba;
+            }
+          }
+          &:last-of-type {
+            background-color: #c36e6b;
+            &:hover {
+              background-color: #b16360;
+            }
+          }
         }
       }
     }

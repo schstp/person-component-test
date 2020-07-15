@@ -16,3 +16,18 @@ html, body {
 * {
   box-sizing: border-box;
 }
+
+button {
+  height: 35px;
+  background-color: #3d8bcd;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  font-size: inherit;
+  font-weight: bold;
+  &:hover {
+    cursor: pointer;
+    background-color: #3a80ba;
+  }
+}

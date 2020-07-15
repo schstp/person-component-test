@@ -24,9 +24,10 @@ export default {
     }
   },
 
-  async updatePerson({ commit }, personId) {
+  async updatePerson({ commit }, { personData, personId }) {
     try {
       const rawPerson = await apiClient.updatePerson({
+        data: personData,
         args: {
           personId: personId,
         },
@@ -38,10 +39,13 @@ export default {
     }
   },
 
-  async addPerson({ commit }, personData) {
+  async addPerson({ commit }, { personData, personId }) {
     try {
       const rawPerson = await apiClient.addPerson({
         data: personData,
+        args: {
+          personId: personId,
+        },
       })
       commit('addPerson', { rawPerson })
       return Promise.resolve(rawPerson)

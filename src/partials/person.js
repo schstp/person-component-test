@@ -157,7 +157,7 @@ export class PersonsCollection {
    */
   removePersonById(id) {
     const index = this.persons_.findIndex((person) => {
-      return person.id === id
+      return person.id_ === id
     })
     if (index > -1) {
       this.persons_.slice(index, 1)
