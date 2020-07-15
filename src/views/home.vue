@@ -85,26 +85,97 @@ export default {
   methods: {
     ...mapActions(['getPersons', 'addPerson']),
     createNewPerson() {
-      this.showModal = false
-      this.addPerson({
-        personData: {
-          firstName: this.modalData.firstName,
-          lastName: this.modalData.lastName,
-        },
-        personId: null,
-      }).then((rawPerson) => {
-        const newPersonFullName = `${rawPerson.firstName} ${rawPerson.lastName}`
-        this.showNotification({
-          message: `Сотрудник "${newPersonFullName}" добавлен в список.`,
-          type: 'success',
-          shown: true,
+      if (this.validateForm()) {
+        this.showModal = false
+        this.addPerson({
+          personData: {
+            firstName: this.modalData.firstName,
+            lastName: this.modalData.lastName,
+          },
+          personId: null,
+        }).then((rawPerson) => {
+          console.log(rawPerson)
+          const fullName = `${rawPerson.firstName} ${rawPerson.lastName}`
+          this.showNotification({
+            message: `Сотрудник "${fullName}" добавлен в список.`,
+            type: 'success',
+            shown: true,
+          })
+        }).catch((err) => {
+          this.handleHttpError(err)
         })
-      })
-      this.clearModal()
+        this.clearModal()
+      }
     },
     clearModal() {
       this.modalData.firstName = ''
       this.modalData.lastName = ''
+    },
+    validateForm() {
+      this.modalData.firstName = this.modalData.firstName.trim()
+      this.modalData.lastName = this.modalData.lastName.trim()
+      const isFirstNameEmpty = this.isEmpty(this.modalData.firstName)
+      const isLastNameEmpty = this.isEmpty(this.modalData.lastName)
+      const isFirstNameTooLong = this.isTooLong(this.modalData.firstName)
+      const isLastNameTooLong = this.isTooLong(this.modalData.lastName)
+      let errorMessage = null
+      if (isFirstNameEmpty && isLastNameEmpty) {
+        errorMessage = 'Имя и фамилия обязательны для заполнения.'
+      } else if (isFirstNameEmpty) {
+        errorMessage = 'Имя обязательно для заполнения.'
+      } else if (isLastNameEmpty) {
+        errorMessage = 'Фамилия обязательна для заполнения.'
+      }
+      if (isFirstNameTooLong && isLastNameTooLong) {
+        errorMessage = 'Имя и фамилия слишком длинные.'
+      } else if (isFirstNameTooLong) {
+        errorMessage = 'Слишком длинное имя.'
+      } else if (isLastNameTooLong) {
+        errorMessage = 'Слишком длинная фамилия.'
+      }
+      if (errorMessage) {
+        this.showNotification({
+          message: errorMessage,
+          type: 'error',
+          shown: true,
+        })
+        return false
+      } else {
+        return true
+      }
+    },
+    isEmpty(value) {
+      return value === ''
+    },
+    isTooLong(value) {
+      return value.length > 30
+    },
+    handleHttpError(err) {
+      if (err.response.status === 404) {
+        this.showNotification({
+          message: 'Не удалось добавить сотрудника. ' +
+            'Обратитесь в службу поддержки.',
+          type: 'error',
+          shown: true,
+        })
+      }
+      if (err.response.status === 400) {
+        this.showNotification({
+          message: 'Не удалось добавить сотрудника. ' +
+            'Обратитесь в службу поддержки.',
+          type: 'error',
+          shown: true,
+        })
+      }
+      if (err.response.status === 500) {
+        this.showNotification({
+          message: 'Не удалось добавить сотрудника, ' +
+            'на сервере произошла ошибка. Повторите ' +
+            'операцию позже.',
+          type: 'error',
+          shown: true,
+        })
+      }
     },
     showNotification(args) {
       this.notificationToastState = args

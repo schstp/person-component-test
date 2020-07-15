@@ -7,7 +7,7 @@ export default {
       commit('setPersonsCollection', { rawPersons })
       return Promise.resolve(rawPersons)
     } catch (err) {
-      return Promise.resolve(err)
+      return Promise.reject(err)
     }
   },
 
@@ -20,7 +20,7 @@ export default {
       })
       return Promise.resolve(rawPerson)
     } catch (err) {
-      return Promise.resolve(err)
+      return Promise.reject(err)
     }
   },
 
@@ -35,7 +35,7 @@ export default {
       commit('updatePerson', { rawPerson })
       return Promise.resolve(rawPerson)
     } catch (err) {
-      return Promise.resolve(err)
+      return Promise.reject(err)
     }
   },
 
@@ -50,7 +50,7 @@ export default {
       commit('addPerson', { rawPerson })
       return Promise.resolve(rawPerson)
     } catch (err) {
-      return Promise.resolve(err)
+      return Promise.reject(err)
     }
   },
 
@@ -64,7 +64,7 @@ export default {
       // commit('deletePerson', { personId })
       return Promise.resolve(true)
     } catch (err) {
-      return Promise.resolve(err)
+      return Promise.reject(err)
     }
   },
 }

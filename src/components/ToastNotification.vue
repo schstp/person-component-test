@@ -44,7 +44,7 @@ export default {
 <style scoped lang="scss">
   .toast-mask {
     position: fixed;
-    z-index: 9998;
+    z-index: 10000;
     top: 0;
     left: 0;
     width: 100%;
@@ -76,9 +76,11 @@ export default {
       font-family: Roboto, sans-serif;
       font-style: normal;
       font-weight: bold;
-      font-size: 14px;
-      line-height: 150%;
+      font-size: 11px;
       color: #292929;
+      @media screen and (min-width: 480px){
+        font-size: 14px;
+      }
     }
   }
   .toast-enter-active {

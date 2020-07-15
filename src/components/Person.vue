@@ -18,7 +18,7 @@
         </button>
         <person-edit-modal
           v-if="showEditModal"
-          @close="showEditModal = false"
+          @close="closeEditModal"
           @submit="updatePersonInfo"
         >
           <span slot="header">Редактирование сотрудника</span>
@@ -89,21 +89,24 @@ export default {
   methods: {
     ...mapActions(['updatePerson', 'deletePerson']),
     updatePersonInfo() {
-      this.showEditModal = false
-      this.updatePerson({
-        personData: {
-          firstName: this.editModalData.firstName,
-          lastName: this.editModalData.lastName,
-        },
-        personId: this.person.getId(),
-      })
-          .then(() => {
-            this.$emit('show-notification', {
-              message: 'Информация о сотруднике успешно обновлена.',
-              type: 'success',
-              shown: true,
-            })
+      if (this.validateForm()) {
+        this.showEditModal = false
+        this.updatePerson({
+          personData: {
+            firstName: this.editModalData.firstName,
+            lastName: this.editModalData.lastName,
+          },
+          personId: this.person.getId(),
+        }).then(() => {
+          this.$emit('show-notification', {
+            message: 'Информация о сотруднике успешно обновлена.',
+            type: 'success',
+            shown: true,
           })
+        }).catch((err) => {
+          this.handleHttpError(err)
+        })
+      }
     },
     removePerson() {
       this.showDeleteModal = false
@@ -118,7 +121,82 @@ export default {
             this.$store.commit('deletePerson', {
               personId: this.person.getId(),
             })
+          }).catch((err) => {
+            this.handleHttpError(err)
           })
+    },
+    validateForm() {
+      this.editModalData.firstName = this.editModalData.firstName.trim()
+      this.editModalData.lastName = this.editModalData.lastName.trim()
+      const isFirstNameEmpty = this.isEmpty(this.editModalData.firstName)
+      const isLastNameEmpty = this.isEmpty(this.editModalData.lastName)
+      const isFirstNameTooLong = this.isTooLong(this.editModalData.firstName)
+      const isLastNameTooLong = this.isTooLong(this.editModalData.lastName)
+      let errorMessage = null
+      if (isFirstNameEmpty && isLastNameEmpty) {
+        errorMessage = 'Имя и фамилия обязательны для заполнения.'
+      } else if (isFirstNameEmpty) {
+        errorMessage = 'Имя обязательно для заполнения.'
+      } else if (isLastNameEmpty) {
+        errorMessage = 'Фамилия обязательна для заполнения.'
+      }
+      if (isFirstNameTooLong && isLastNameTooLong) {
+        errorMessage = 'Имя и фамилия слишком длинные.'
+      } else if (isFirstNameTooLong) {
+        errorMessage = 'Слишком длинное имя.'
+      } else if (isLastNameTooLong) {
+        errorMessage = 'Слишком длинная фамилия.'
+      }
+      if (errorMessage) {
+        this.$emit('show-notification', {
+          message: errorMessage,
+          type: 'error',
+          shown: true,
+        })
+        return false
+      } else {
+        return true
+      }
+    },
+    isEmpty(value) {
+      return value === ''
+    },
+    isTooLong(value) {
+      return value.length > 30
+    },
+    closeEditModal() {
+      this.showEditModal = false
+      this.editModalData = {
+        firstName: this.person.getFirstName(),
+        lastName: this.person.getLastName(),
+      }
+    },
+    handleHttpError(err) {
+      if (err.response.status === 404) {
+        this.$emit('show-notification', {
+          message: 'Не удалось обновить/удалить данные. ' +
+            'Сотрудник не найден в системе.',
+          type: 'error',
+          shown: true,
+        })
+      }
+      if (err.response.status === 400) {
+        this.$emit('show-notification', {
+          message: 'Не удалось обновить/удалить данные. ' +
+            'Обратитесь в службу поддержки.',
+          type: 'error',
+          shown: true,
+        })
+      }
+      if (err.response.status === 500) {
+        this.$emit('show-notification', {
+          message: 'Не удалось обновить/удалить данные, ' +
+            'на сервере произошла ошибка. Повторите ' +
+            'операцию позже.',
+          type: 'error',
+          shown: true,
+        })
+      }
     },
   },
 }
