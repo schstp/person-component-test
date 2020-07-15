@@ -130,7 +130,18 @@ export class PersonsCollection {
   }
 
   /**
-   * Remove person with specified id.
+   * Get person with specified id from the collection.
+   * @param {Number} id - The id of person to delete.
+   * @return {Person|undefined} Person class instance or undefined if not found.
+   */
+  getPersonById(id) {
+    return this.persons_.find((person) => {
+      return person.getId() === id
+    })
+  }
+
+  /**
+   * Remove person with specified id from the collection.
    * @param {Number} id - The id of person to delete.
    * @return {Boolean} The sign of operation success.
    */
@@ -146,12 +157,13 @@ export class PersonsCollection {
   }
 
   /**
-   * Produce a persons list from raw server response data (factory method).
+   * Produce a persons collection from
+   * raw server response data (factory method).
    * @param {{id: Number, firstName: String, lastName: String}[]} rawPersons
    * - Array of person data objects.
    * @return {PersonsCollection}
    */
-  static producePersonsList(rawPersons) {
+  static producePersonsCollection(rawPersons) {
     const persons = []
     for (const personData of rawPersons) {
       try {
