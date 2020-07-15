@@ -32,14 +32,6 @@
 <script>
 export default {
   name: 'PersonEditModal',
-  data() {
-    const firstName_ = this.firstName
-    const lastName_ = this.lastName
-    return {
-      firstName: firstName_,
-      lastName: lastName_,
-    }
-  },
 }
 </script>
 

@@ -97,10 +97,28 @@ export default {
         },
         personId: this.person.getId(),
       })
+          .then(() => {
+            this.$emit('show-notification', {
+              message: 'Информация о сотруднике успешно обновлена.',
+              type: 'success',
+              shown: true,
+            })
+          })
     },
     removePerson() {
       this.showDeleteModal = false
+      const notificationContent = this.person.getFullName()
       this.deletePerson(this.person.getId())
+          .then(() => {
+            this.$emit('show-notification', {
+              message: `Сотрудник "${notificationContent}" удален.`,
+              type: 'success',
+              shown: true,
+            })
+            this.$store.commit('deletePerson', {
+              personId: this.person.getId(),
+            })
+          })
     },
   },
 }

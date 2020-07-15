@@ -74,6 +74,14 @@ export class Person {
   }
 
   /**
+   * Get person full name.
+   * @return {String} Person full name.
+   */
+  getFullName() {
+    return this.firstName_ + ' ' + this.lastName_
+  }
+
+  /**
    * Produce a person from raw server response data (factory method).
    * @param {Object} rawPerson - Raw (not validated) server response person data
    * @return {Person}
@@ -157,10 +165,10 @@ export class PersonsCollection {
    */
   removePersonById(id) {
     const index = this.persons_.findIndex((person) => {
-      return person.id_ === id
+      return person.getId() === id
     })
     if (index > -1) {
-      this.persons_.slice(index, 1)
+      this.persons_.splice(index, 1)
       this.length_--
       return true
     }

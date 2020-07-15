@@ -1,5 +1,13 @@
 <template>
   <div v-if="!loadingState" class="container">
+    <toast-notification
+      v-if="notificationToastState.shown"
+      :bg-color="notificationToastState.type"
+    >
+      <span slot="message">
+        {{ notificationToastState.message }}
+      </span>
+    </toast-notification>
     <div class="table">
       <div class="table__header">
         <div class="table__header__column"></div>
@@ -12,6 +20,7 @@
           v-for="person in personsCollection"
           :key="person.id"
           :person="person"
+          @show-notification="showNotification"
         />
       </div>
       <div class="table__footer">
@@ -46,12 +55,14 @@
 import { mapActions, mapState } from 'vuex'
 import Person from '../components/Person.vue'
 import PersonEditModal from '../components/PersonEditModal.vue'
+import ToastNotification from '../components/ToastNotification.vue'
 
 export default {
   name: 'home',
   components: {
     Person,
     PersonEditModal,
+    ToastNotification,
   },
   data() {
     return {
@@ -60,6 +71,11 @@ export default {
       modalData: {
         firstName: '',
         lastName: '',
+      },
+      notificationToastState: {
+        message: '',
+        type: '',
+        shown: false,
       },
     }
   },
@@ -76,12 +92,30 @@ export default {
           lastName: this.modalData.lastName,
         },
         personId: null,
+      }).then((rawPerson) => {
+        const newPersonFullName = `${rawPerson.firstName} ${rawPerson.lastName}`
+        this.showNotification({
+          message: `Сотрудник "${newPersonFullName}" добавлен в список.`,
+          type: 'success',
+          shown: true,
+        })
       })
       this.clearModal()
     },
     clearModal() {
       this.modalData.firstName = ''
       this.modalData.lastName = ''
+    },
+    showNotification(args) {
+      this.notificationToastState = args
+      const context = this
+      setTimeout(function() {
+        context.notificationToastState = {
+          message: '',
+          type: '',
+          shown: false,
+        }
+      }, 1500)
     },
   },
   beforeMount() {
@@ -120,7 +154,7 @@ export default {
 
   .table {
     width: inherit;
-    margin: 50px auto;
+    margin: 70px auto;
 
     &__header {
       display: flex;
