@@ -19,4 +19,4 @@ change fake api port (.env file in root dir).***
 ```
 npm run lint
 ```
-
+**Please, run lint to avoid OS compatibility issues.**
