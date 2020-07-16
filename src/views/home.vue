@@ -80,27 +80,23 @@ export default {
       })
     },
     handleHttpError(err) {
+      let message = null
       if (err.response.status === 404) {
-        this.$emit('show-notification', {
-          message: 'Не удалось добавить сотрудника. ' +
-            'Обратитесь в службу поддержки.',
-          type: 'error',
-          shown: true,
-        })
+        message = 'Не удалось выполнить операцию. ' +
+          'Сотрудник не найден.'
       }
       if (err.response.status === 400) {
-        this.$emit('show-notification', {
-          message: 'Не удалось добавить сотрудника. ' +
-            'Обратитесь в службу поддержки.',
-          type: 'error',
-          shown: true,
-        })
+        message = 'Не удалось выполнить операцию. ' +
+          'Обратитесь в службу поддержки.'
       }
       if (err.response.status === 500) {
-        this.$emit('show-notification', {
-          message: 'Не удалось добавить сотрудника, ' +
-            'на сервере произошла ошибка. Повторите ' +
-            'операцию позже.',
+        message = 'Не удалось выполнить операцию. ' +
+          'На сервере произошла ошибка. Повторите ' +
+          'операцию позже.'
+      }
+      if (message) {
+        this.showNotification({
+          message: message,
           type: 'error',
           shown: true,
         })

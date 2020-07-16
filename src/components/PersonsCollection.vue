@@ -1,47 +1,88 @@
 <template>
   <div class="container">
+
     <div class="table">
+
       <div class="table__header">
         <div class="table__header__column"></div>
         <div class="table__header__column">Имя</div>
         <div class="table__header__column">Фамилия</div>
         <div class="table__header__column"></div>
       </div>
+
       <div class="table__body">
-        <person
-          v-for="person in personsCollection"
-          :key="person.id"
-          :person="person"
-          @update-person="propagatePersonUpdateRequest"
-          @delete-person="propagatePersonDeleteRequest"
-          @show-notification="propagateNotification"
-        />
+        <template v-if="personsCollection.getLength() > 0">
+          <person
+            v-for="person in personsCollection"
+            :key="person.id"
+            :person="person"
+            @update-person-request="showUpdatePersonModal"
+            @delete-person-request="showDeletePersonModal"
+          />
+        </template>
+        <template v-else>
+          <div class="info-msg">
+            <span class="msg-wrapper">
+              Список сотрудников пуст.
+              Кликните по кнопке "Добавить сотрудинка",
+              чтобы добавить сотрудника в список.
+            </span>
+          </div>
+        </template>
       </div>
+
       <div class="table__footer">
         <div class="table__footer__column">
         </div>
         <div class="table__footer__column">
-          <button @click="showModal = true">Добавить сотрудника</button>
-          <person-edit-modal
-            v-if="showModal"
-            @close="showModal = false"
-            @submit="createNewPerson"
-          >
-            <span slot="header">Создание сотрудника</span>
-            <div slot="body" class="modal-body">
-              <input
-                v-model="modalData.firstName"
-                placeholder="Введите имя сотрудника"
-              >
-              <input
-                v-model="modalData.lastName"
-                placeholder="Введите фамилию сотрудника"
-              >
-            </div>
-          </person-edit-modal>
+          <button @click="showCreatePersonModal">
+            Добавить сотрудника
+          </button>
         </div>
       </div>
+
     </div>
+
+    <person-edit-modal
+      v-if="showModal"
+      @close="closeModal"
+      @submit="applyChanges"
+    >
+      <template #header>
+        {{ modalState.title }}
+      </template>
+      <template #body>
+        <div
+          v-if="modalState.mode === 'create' || modalState.mode === 'update'"
+          class="modal-body"
+        >
+          <input
+            v-model="modalData.firstName"
+            placeholder="Введите имя сотрудника"
+          >
+          <input
+            v-model="modalData.lastName"
+            placeholder="Введите фамилию сотрудника"
+          >
+        </div>
+        <div v-else-if="modalState.mode === 'delete'">
+          <span>
+            Вы уверены, что хотите удалить сотрудника
+            "{{ modalData.firstName + ' ' + modalData.lastName }}" ?
+          </span>
+        </div>
+      </template>
+      <template #footer>
+        <div
+          v-if="modalState.mode === 'delete'"
+          class="delete-modal-footer"
+        >
+          <button @click="closeModal">Отмена</button>
+          <button @click="applyChanges">Удалить</button>
+        </div>
+      </template>
+    </person-edit-modal>
+
   </div>
 </template>
 
@@ -68,13 +109,84 @@ export default {
       modalData: {
         firstName: '',
         lastName: '',
+        person: null,
       },
+      modalState: {
+        title: '',
+        mode: '',
+      },
+      cachedPerson: {
+        firstName: null,
+        lastName: null,
+      },
+      editModalContentChanged: false,
     }
   },
   methods: {
-    createNewPerson() {
+    showCreatePersonModal() {
+      this.modalState = {
+        title: 'Создание сотрудника',
+        mode: 'create',
+      }
+      this.modalData = {
+        firstName: '',
+        lastName: '',
+      }
+      this.showModal = true
+    },
+    showUpdatePersonModal(person) {
+      this.modalState = {
+        title: 'Редактирование сотрудника',
+        mode: 'update',
+      }
+      this.cachedPerson = {
+        firstName: person.getFirstName(),
+        lastName: person.getLastName(),
+      }
+      this.modalData = {
+        firstName: person.getFirstName(),
+        lastName: person.getLastName(),
+        person: person,
+      }
+      this.showModal = true
+    },
+    showDeletePersonModal(person) {
+      this.modalState = {
+        title: 'Удаление сотрудника',
+        mode: 'delete',
+      }
+      this.modalData = {
+        firstName: person.getFirstName(),
+        lastName: person.getLastName(),
+        person: person,
+      }
+      this.showModal = true
+    },
+    clearModal() {
+      this.modalData = {
+        firstName: '',
+        lastName: '',
+        person: null,
+      }
+      this.modalState = {
+        title: '',
+        mode: '',
+      }
+    },
+    closeModal() {
+      this.showModal = false
+    },
+    applyChanges() {
+      if (this.modalState.mode === 'create') {
+        this.requestPersonCreate()
+      } else if (this.modalState.mode === 'update') {
+        this.requestPersonUpdate()
+      } else if (this.modalState.mode === 'delete') {
+        this.requestPersonDelete()
+      }
+    },
+    requestPersonCreate() {
       if (this.validateForm()) {
-        this.showModal = false
         this.$emit('create-person', {
           personData: {
             firstName: this.modalData.firstName,
@@ -82,8 +194,38 @@ export default {
           },
           personId: null,
         })
+        this.closeModal()
         this.clearModal()
       }
+    },
+    requestPersonUpdate() {
+      this.checkIfWasChanged()
+      if (this.editModalContentChanged) {
+        this.editModalContentChanged = false
+        if (this.validateForm()) {
+          this.closeModal()
+          this.$emit('update-person', {
+            personData: {
+              firstName: this.modalData.firstName,
+              lastName: this.modalData.lastName,
+            },
+            personId: this.modalData.person.getId(),
+          })
+        }
+      } else {
+        this.$emit('show-notification', {
+          message: 'Никаких изменений не внесено.',
+          type: 'info',
+          shown: true,
+        })
+        this.closeModal()
+        this.clearModal()
+      }
+    },
+    requestPersonDelete() {
+      this.$emit('delete-person', this.modalData.person.getId())
+      this.closeModal()
+      this.clearModal()
     },
     validateForm() {
       this.modalData.firstName = this.modalData.firstName.trim()
@@ -124,18 +266,15 @@ export default {
     isTooLong(value) {
       return value.length > 30
     },
-    clearModal() {
-      this.modalData.firstName = ''
-      this.modalData.lastName = ''
-    },
-    propagateNotification(args) {
-      this.$emit('show-notification', args)
-    },
-    propagatePersonUpdateRequest(personData) {
-      this.$emit('update-person', personData)
-    },
-    propagatePersonDeleteRequest(personId) {
-      this.$emit('delete-person', personId)
+    checkIfWasChanged() {
+      if (this.modalData.firstName.trim() !== this.cachedPerson.firstName ||
+        this.modalData.lastName.trim() !== this.cachedPerson.lastName) {
+        this.cachedPerson.firstName = this.modalData.firstName.trim()
+        this.cachedPerson.lastName = this.modalData.lastName.trim()
+        this.editModalContentChanged = true
+      } else {
+        this.editModalContentChanged = false
+      }
     },
   },
 }
@@ -221,17 +360,57 @@ export default {
           width: 210px;
         }
       }
-      .modal-body {
-        input {
-          width: 100%;
-          height: 35px;
-          outline: none;
-          border: 1px solid #999999;
-          border-radius: 3px;
-          margin-bottom: 10px;
-          font-size: 14px;
+    }
+  }
+
+  .modal-body {
+    input {
+      width: 100%;
+      height: 35px;
+      outline: none;
+      border: 1px solid #999999;
+      border-radius: 3px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+  }
+
+  .delete-modal-footer {
+    button {
+      height: 35px;
+      width: 100px;
+      margin-left: 5px;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      font-size: inherit;
+      font-weight: bold;
+      &:hover {
+        cursor: pointer;
+      }
+      &:first-of-type {
+        background-color: #3d8bcd;
+        &:hover {
+          background-color: #3a80ba;
         }
       }
+      &:last-of-type {
+        background-color: #c36e6b;
+        &:hover {
+          background-color: #b16360;
+        }
+      }
+    }
+  }
+
+  .info-msg {
+    display: flex;
+    padding: 0 15px;
+    max-width: 500px;
+    margin: 10px auto;
+    justify-content: center;
+    .msg-wrapper {
     }
   }
 </style>

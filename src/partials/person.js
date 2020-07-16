@@ -90,11 +90,15 @@ export class Person {
     if (rawPerson.id === null || rawPerson.id === undefined) {
       throw new Error('Bad person data: no data')
     }
-    if (rawPerson.firstName === null || rawPerson.firstName === undefined) {
-      throw new Error('Bad person data: no first name')
+    if (rawPerson.firstName === null ||
+      rawPerson.firstName === undefined ||
+      rawPerson.firstName === '') {
+      rawPerson.firstName = 'Не указано'
     }
-    if (rawPerson.lastName === null || rawPerson.lastName === undefined) {
-      throw new Error('Bad person data: no last name')
+    if (rawPerson.lastName === null ||
+      rawPerson.lastName === undefined ||
+      rawPerson.lastName === '') {
+      rawPerson.lastName = 'Не указано'
     }
     return new this(rawPerson)
   }
@@ -106,7 +110,8 @@ export class Person {
  */
 export class PersonsCollection {
   /** @private @const Collection update error message */
-  updateErrMsg_ = 'Defective Person cannot be added to the PersonsCollection'
+  static updateErrMsg_ =
+    'Defective Person cannot be added to the PersonsCollection'
 
   /**
    * Create a PersonsCollection.
@@ -196,7 +201,9 @@ export class PersonsCollection {
       try {
         persons.push(Person.producePerson(personData))
       } catch (err) {
-        throw new Error(PersonsCollection.updateErrMsg_)
+        const error = Error(PersonsCollection.updateErrMsg_)
+        console.warn(err)
+        console.warn(error)
       }
     }
     return new this(persons)
