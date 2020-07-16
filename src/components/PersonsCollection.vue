@@ -267,6 +267,11 @@ export default {
       return value.length > 30
     },
     checkIfWasChanged() {
+      if (this.modalData.firstName.trim() === '' ||
+        this.modalData.firstName.trim() === '') {
+        this.editModalContentChanged = true
+        return
+      }
       if (this.modalData.firstName.trim() !== this.cachedPerson.firstName ||
         this.modalData.lastName.trim() !== this.cachedPerson.lastName) {
         this.cachedPerson.firstName = this.modalData.firstName.trim()
