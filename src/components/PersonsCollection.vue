@@ -13,7 +13,7 @@
       <div class="table__body">
         <template v-if="personsCollection.getLength() > 0">
           <person
-            v-for="person in personsCollection"
+            v-for="person in personsCollection.persons_"
             :key="person.id"
             :person="person"
             @update-person-request="showUpdatePersonModal"

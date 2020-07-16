@@ -3,7 +3,7 @@ import apiClient from '../partials/api-client.js'
 export default {
   async getPersons({ commit }) {
     try {
-      const rawPersons = await apiClient.getPersons()
+      const rawPersons = await apiClient.request('getPersons')
       commit('setPersonsCollection', { rawPersons })
       return Promise.resolve(rawPersons)
     } catch (err) {
@@ -13,7 +13,7 @@ export default {
 
   async getPerson(personId) {
     try {
-      const rawPerson = await apiClient.getPerson({
+      const rawPerson = await apiClient.request('getPerson', {
         args: {
           personId: personId,
         },
@@ -26,7 +26,7 @@ export default {
 
   async updatePerson({ commit }, { personData, personId }) {
     try {
-      const rawPerson = await apiClient.updatePerson({
+      const rawPerson = await apiClient.request('updatePerson', {
         data: personData,
         args: {
           personId: personId,
@@ -41,7 +41,7 @@ export default {
 
   async addPerson({ commit }, { personData, personId }) {
     try {
-      const rawPerson = await apiClient.addPerson({
+      const rawPerson = await apiClient.request('addPerson', {
         data: personData,
         args: {
           personId: personId,
@@ -56,7 +56,7 @@ export default {
 
   async deletePerson({ commit }, personId) {
     try {
-      await apiClient.deletePerson({
+      await apiClient.request('deletePerson', {
         args: {
           personId: personId,
         },

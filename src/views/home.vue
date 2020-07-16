@@ -80,6 +80,7 @@ export default {
       })
     },
     handleHttpError(err) {
+      console.log(err)
       let message = null
       if (err.response.status === 404) {
         message = 'Не удалось выполнить операцию. ' +

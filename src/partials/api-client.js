@@ -29,6 +29,25 @@ class ApiClient {
   }
 
   /**
+   * Perform request.
+   * @param {String} name - Request tag.
+   * @param {Object} - Request params.
+   * @return {Function}
+   */
+  async request(name, { params = {}, data = {}, args = {} } = {}) {
+    return this.client({
+      method: BACKEND_ENDPOINTS[name].method,
+      url: ApiClient.urlFormat(BACKEND_ENDPOINTS[name].url, args),
+      data: data,
+      params: params,
+    })
+        .then((serverResponse) => serverResponse.data)
+        .catch((err) => {
+          throw err
+        })
+  }
+
+  /**
    * Replace curly-braces-wrapped request parameter names inside the url pattern
    * with the self-titled parameter values in params object.
    * @param {String} url - The string representing url pattern with
@@ -47,7 +66,8 @@ class ApiClient {
     return url
   }
 }
-
+export default new ApiClient()
+/** Not supported by IR
 export default new Proxy(
     new ApiClient(),
     {
@@ -71,3 +91,4 @@ export default new Proxy(
       },
     },
 )
+ */
