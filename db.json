@@ -2,7 +2,6 @@
   "persons": [
     {
       "firstName": "Kate",
-<<<<<<< HEAD
       "lastName": "Erte",
       "id": 2
     },
@@ -17,7 +16,7 @@
       "id": 4
     },
     {
-      "firstName": "2",
+      "firstName": "25454",
       "lastName": "132",
       "id": 5
     },
@@ -25,10 +24,11 @@
       "firstName": "32",
       "lastName": "23",
       "id": 6
-=======
-      "lastName": "Mall",
-      "id": 1
->>>>>>> 811df0987085df5a5087845b35349837ea2e5cc0
+    },
+    {
+      "firstName": "reeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "lastName": "Esdas",
+      "id": 7
     }
   ]
 }
