@@ -131,6 +131,7 @@ export default {
         overflow: hidden;
         text-overflow: ellipsis;
         text-transform: capitalize;
+        white-space: nowrap;
         @media screen and (min-width: 700px){
           max-width: 160px;
         }
