@@ -2,6 +2,7 @@
   "persons": [
     {
       "firstName": "Kate",
+<<<<<<< HEAD
       "lastName": "Erte",
       "id": 2
     },
@@ -24,6 +25,10 @@
       "firstName": "32",
       "lastName": "23",
       "id": 6
+=======
+      "lastName": "Mall",
+      "id": 1
+>>>>>>> 811df0987085df5a5087845b35349837ea2e5cc0
     }
   ]
 }

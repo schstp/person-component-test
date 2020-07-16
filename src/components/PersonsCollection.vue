@@ -211,6 +211,7 @@ export default {
             },
             personId: this.modalData.person.getId(),
           })
+          this.clearModal()
         }
       } else {
         this.$emit('show-notification', {
@@ -274,8 +275,6 @@ export default {
       }
       if (this.modalData.firstName.trim() !== this.cachedPerson.firstName ||
         this.modalData.lastName.trim() !== this.cachedPerson.lastName) {
-        this.cachedPerson.firstName = this.modalData.firstName.trim()
-        this.cachedPerson.lastName = this.modalData.lastName.trim()
         this.editModalContentChanged = true
       } else {
         this.editModalContentChanged = false
@@ -411,11 +410,9 @@ export default {
 
   .info-msg {
     display: flex;
-    padding: 0 15px;
+    padding: 0 30px;
     max-width: 500px;
-    margin: 10px auto;
+    margin: 20px auto;
     justify-content: center;
-    .msg-wrapper {
-    }
   }
 </style>

@@ -83,11 +83,12 @@ export default {
   .modal-header {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 0 20px;
     background-color: #999999;
     color: #ffffff;
     border-radius: 3px 3px 0 0;
     height: 40px;
+    font-family: Roboto, sans-serif;
     h3 {
       margin-top: 0;
       color: #42b983;
