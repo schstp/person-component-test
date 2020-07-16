@@ -2,23 +2,8 @@
   "persons": [
     {
       "firstName": "Kate",
-      "lastName": "Erte",
-      "id": 2
-    },
-    {
-      "firstName": "Poul",
-      "lastName": "Jsass",
-      "id": 3
-    },
-    {
-      "firstName": "Katty",
-      "lastName": "Bell",
-      "id": 4
-    },
-    {
-      "firstName": "2",
-      "lastName": "132",
-      "id": 5
+      "lastName": "Mall",
+      "id": 1
     }
   ]
 }
