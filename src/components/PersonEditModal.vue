@@ -100,7 +100,7 @@ export default {
     padding: 0 20px;
 
     a {
-      display: block;
+      display: inline-block;
       font-size: 14px;
       margin-bottom: 10px;
     }
