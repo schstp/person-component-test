@@ -2,7 +2,11 @@
   <transition name="toast">
     <div class="toast-mask">
       <div class="toast-wrapper">
-        <div id="toast" class="toast-container">
+        <div
+          id="toast"
+          class="toast-container"
+          :style="`background-color: ${toastBgColor}`"
+        >
           <p>
             <slot name="message">
               default message
@@ -23,20 +27,16 @@ export default {
       default: 'info',
     },
   },
-  data() {
-    let bgType = '#c9e7fd'
-    if (this.bgColor === 'error') {
-      bgType = '#fedadc'
-    } else if (this.bgColor === 'success') {
-      bgType = '#d0eddd'
-    }
-    return {
-      toastBgColor: bgType,
-    }
-  },
-  mounted() {
-    const toast = document.getElementById('toast')
-    toast.style.backgroundColor = this.toastBgColor
+  computed: {
+    toastBgColor() {
+      let bgType = '#c9e7fd'
+      if (this.bgColor === 'error') {
+        bgType = '#fedadc'
+      } else if (this.bgColor === 'success') {
+        bgType = '#d0eddd'
+      }
+      return bgType
+    },
   },
 }
 </script>

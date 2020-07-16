@@ -6,10 +6,20 @@
       </div>
     </div>
     <div class="container__column">
-      {{ person.getFirstName() }}
+      <span
+        :title="person.getFirstName()"
+        class="text-field-wrapper"
+      >
+        {{ person.getFirstName() }}
+      </span>
     </div>
     <div class="container__column">
-      {{ person.getLastName() }}
+      <span
+        :title="person.getLastName()"
+        class="text-field-wrapper"
+      >
+        {{ person.getLastName() }}
+      </span>
     </div>
     <div class="container__column">
       <div class="control-btn-wrapper">
@@ -59,7 +69,6 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
 import { Person } from '../partials/person.js'
 import PersonEditModal from './PersonEditModal.vue'
 
@@ -82,48 +91,42 @@ export default {
         firstName: firstName,
         lastName: lastName,
       },
+      cachedPerson: {
+        firstName: firstName,
+        lastName: lastName,
+      },
+      editModalContentChanged: false,
       showEditModal: false,
       showDeleteModal: false,
     }
   },
   methods: {
-    ...mapActions(['updatePerson', 'deletePerson']),
     updatePersonInfo() {
-      if (this.validateForm()) {
-        this.showEditModal = false
-        this.updatePerson({
-          personData: {
-            firstName: this.editModalData.firstName,
-            lastName: this.editModalData.lastName,
-          },
-          personId: this.person.getId(),
-        }).then(() => {
-          this.$emit('show-notification', {
-            message: 'Информация о сотруднике успешно обновлена.',
-            type: 'success',
-            shown: true,
+      this.checkIfWasChanged()
+      if (this.editModalContentChanged) {
+        this.editModalContentChanged = false
+        if (this.validateForm()) {
+          this.showEditModal = false
+          this.$emit('update-person', {
+            personData: {
+              firstName: this.editModalData.firstName,
+              lastName: this.editModalData.lastName,
+            },
+            personId: this.person.getId(),
           })
-        }).catch((err) => {
-          this.handleHttpError(err)
+        }
+      } else {
+        this.showEditModal = false
+        this.$emit('show-notification', {
+          message: 'Никаких изменений не внесено.',
+          type: 'info',
+          shown: true,
         })
       }
     },
     removePerson() {
       this.showDeleteModal = false
-      const notificationContent = this.person.getFullName()
-      this.deletePerson(this.person.getId())
-          .then(() => {
-            this.$emit('show-notification', {
-              message: `Сотрудник "${notificationContent}" удален.`,
-              type: 'success',
-              shown: true,
-            })
-            this.$store.commit('deletePerson', {
-              personId: this.person.getId(),
-            })
-          }).catch((err) => {
-            this.handleHttpError(err)
-          })
+      this.$emit('delete-person', this.person.getId())
     },
     validateForm() {
       this.editModalData.firstName = this.editModalData.firstName.trim()
@@ -169,6 +172,16 @@ export default {
       this.editModalData = {
         firstName: this.person.getFirstName(),
         lastName: this.person.getLastName(),
+      }
+    },
+    checkIfWasChanged() {
+      if (this.editModalData.firstName.trim() !== this.cachedPerson.firstName ||
+        this.editModalData.lastName.trim() !== this.cachedPerson.lastName) {
+        this.cachedPerson.firstName = this.editModalData.firstName.trim()
+        this.cachedPerson.lastName = this.editModalData.lastName.trim()
+        this.editModalContentChanged = true
+      } else {
+        this.editModalContentChanged = false
       }
     },
     handleHttpError(err) {
@@ -261,6 +274,20 @@ export default {
         }
         img {
           width: 100%;
+        }
+      }
+
+      .text-field-wrapper {
+        display: block;
+        max-width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: capitalize;
+        @media screen and (min-width: 700px){
+          max-width: 160px;
+        }
+        @media screen and (min-width: 1200px){
+          max-width: 200px;
         }
       }
 

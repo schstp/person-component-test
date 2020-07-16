@@ -61,7 +61,7 @@ export default {
           personId: personId,
         },
       })
-      // commit('deletePerson', { personId })
+      commit('deletePerson', { personId })
       return Promise.resolve(true)
     } catch (err) {
       return Promise.reject(err)
